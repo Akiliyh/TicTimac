@@ -13,7 +13,7 @@ void draw_game_board(std::array<char, 9> board)
             if (board[i+j] == '\0') board[i+j] = '.';           
             std::cout << board[i+j] << '|';
         }
-        std::cout << std::endl;
+        std::cout << std::endl; 
     } 
 }
 
