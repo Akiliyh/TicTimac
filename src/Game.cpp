@@ -1,10 +1,11 @@
 // #include <terminal_ctrl/terminal_ctrl.h>
 #include <iostream>
-#include "Player.hpp"
+#include "Game.hpp"
 #include <array>
 #include <limits>
+#include <optional>
 
-void draw_example_board(std::array<char, 9> const board)
+void draw_example_board()
 {
     for (int j = 7; j > 0; j -= 3)
     {
@@ -17,47 +18,103 @@ void draw_example_board(std::array<char, 9> const board)
     }
 }
 
+std::optional<Player::Player> check_winner(std::array<char, 10> const &board, Player::Player const &player1, Player::Player const &player2)
+{
+    Player::Player winner{};
+    for (int j = 7; j > 0; j -= 3)
+    {
+        if (board[j] != '.' && board[j] == board[j + 1] && board[j] == board[j + 2])
+        {
+            board[j] == player1.symbol ? winner = player1 : winner = player2;
+            return winner;
+        }
+
+        for (size_t i = 0; i < board.size() / 3; i++)
+        {
+            if (board[i + 7] != '.' && board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
+            {
+                board[i + 7] == player1.symbol ? winner = player1 : winner = player2;
+                return winner;
+            }
+
+            // diagonals
+            if (board[7] != '.' && board[7] == board[5] && board[7] == board[3])
+            {
+                board[7] == player1.symbol ? winner = player1 : winner = player2;
+                return winner;
+            }
+            if (board[1] != '.' && board[1] == board[5] && board[1] == board[9])
+            {
+                board[1] == player1.symbol ? winner = player1 : winner = player2;
+                return winner;
+            }
+        }
+    }
+
+    // if no winner then it's a draw by definition
+    return std::nullopt;
+}
+
 // not optimized
-bool is_game_over(std::array<char, 9> const &board)
+bool is_game_over(std::array<char, 10> const &board)
 {
     bool gameOver{false};
-    for (int j = 7; j > 0; j -= 3) // starts at 6 cause it's an array and starts at 0 we'll add the +1 after for the numpad transcription
+    for (int j = 7; j > 0; j -= 3)
     {
-            if (board[j] == board[j + 1] && board[j] == board[j + 2])
+        if (board[j] == board[j + 1] && board[j] == board[j + 2])
+        {
+            if (board[j] != '.')
+                return gameOver = true;
+        }
+
+        for (size_t i = 0; i < board.size() / 3; i++)
+        {
+            if (board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
             {
-                if (board[j] != '.') return gameOver = true;
+                if (board[i + 7] != '.')
+                    return gameOver = true;
             }
 
-            for (size_t i = 0; i < board.size() / 3; i++)
+            // diagonals
+            if (board[7] == board[5] && board[7] == board[3])
             {
-                if (board[i+7 ] == board[i+7 - 3] && board[i+7] == board[i+7 - 6])
-                {
-                    if (board[i] != '.' && board[j] != '.') return gameOver = true;
-                }
-
-                // diagonals
-                if (board[7 ] == board[5] && board[7] == board[3])
-                {
-                    if (board[i] != '.' && board[j] != '.') return gameOver = true;
-                }
-                if (board[1 ] == board[5] && board[1] == board[9])
-                {
-                    if (board[i] != '.' && board[j] != '.') return gameOver = true;
-                }
+                if (board[7] != '.')
+                    return gameOver = true;
             }
+            if (board[1] == board[5] && board[1] == board[9])
+            {
+                if (board[1] != '.')
+                    return gameOver = true;
+            }
+        }
     }
+
+    // if no winner are defined we check if it's a draw or not
+
+    bool allNonDot = true;
+    for (size_t i = 0; i < board.size(); i++)
+    {
+        if (board[i] == '.')
+        {
+            allNonDot = false;
+            break;
+        }
+    }
+
+    if (allNonDot)
+        return gameOver = true;
 
     return gameOver;
 }
 
-void draw_game_board(std::array<char, 9> &board)
+void draw_game_board(std::array<char, 10> &board)
 {
-    for (int j = 7; j > 0; j -= 3) // starts at 6 cause it's an array and starts at 0 we'll add the +1 after for the numpad transcription
+    for (int j = 7; j > 0; j -= 3)
     {
         std::cout << '|';
         for (size_t i = 0; i < board.size() / 3; i++)
         {
-            if (board[i + j] == '\0')
+            if (board[i + j] == '\0') // replace the empty spaces with a dot
                 board[i + j] = '.';
             std::cout << board[i + j] << '|';
         }
@@ -65,38 +122,46 @@ void draw_game_board(std::array<char, 9> &board)
     }
 }
 
-void game(std::array<char, 9> &board, Player::Player &player1, Player::Player &player2)
+void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &player2)
 {
     bool isGameOver{false};
     int input{};
-    Player::Player plrToPlay{player1};
-    (std::rand() % 2 == 0) ? plrToPlay = player1 : plrToPlay = player2;
+    Player::Player plrToPlay = ((std::rand() % 2) == 0) ? player1 : player2;
 
     while (!isGameOver)
     {
         std::cout << plrToPlay.name << ", c'est à toi de jouer !" << std::endl;
         draw_game_board(board);
 
-        // prevent mistakes
-
-        while (true)
+        if (plrToPlay.name == "AI")
         {
-            std::cin >> input;
-            if (std::cin.fail() || input < 1 || input > 9)
+            do
             {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard
-                std::cout << "Hey c'est pas valide ! Entre un chiffre entre 1 et 9." << std::endl;
-                continue;
-            }
-
-            if (board[input] != '.')
+                input = (std::rand() % 9) + 1;
+            } while (board[input] != '.');
+        }
+        else
+        {
+        // prevent mistakes
+            while (true)
             {
-                std::cout << "Oh non la place est déjà prise réessaye !" << std::endl;
-                continue;
-            }
+                std::cin >> input;
+                if (std::cin.fail() || input < 1 || input > 9)
+                {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard
+                    std::cout << "Hey c'est pas valide ! Entre un chiffre entre 1 et 9." << std::endl;
+                    continue;
+                }
 
-            break;
+                if (board[input] != '.')
+                {
+                    std::cout << "Oh non la place est déjà prise réessaye !" << std::endl;
+                    continue;
+                }
+
+                break;
+            }
         }
 
         board[input] = plrToPlay.symbol;
@@ -105,16 +170,24 @@ void game(std::array<char, 9> &board, Player::Player &player1, Player::Player &p
     }
     std::cout << "La partie est terminée." << std::endl;
     draw_game_board(board);
+    check_winner(board, player1, player2).has_value() ? std::cout << "Le gagnant est " << check_winner(board, player1, player2).value().name << std::endl : std::cout << "La partie est nulle en sah." << std::endl;
 }
 
-int main()
+void game_init(std::array<char, 10> &board, int game_mode)
 {
-    std::setlocale(LC_ALL, ".65001"); // deal with accents
-    std::array<char, 9> board{};
     // terminal_ctrl::clear_terminal();
     // terminal_ctrl::move_cursor(1, 3);
-    draw_example_board(board);
-    Player::Player player1{Player::create_player()};
+    draw_example_board();
+    Player::Player player1{};
+    if (game_mode == 2)
+    {
+        player1.name = "AI";
+        player1.symbol = 'X';
+    }
+    else
+    {
+        player1 = Player::create_player();
+    }
     Player::Player player2{Player::create_player()};
     while (player2.name == player1.name || player2.symbol == player1.symbol)
     {
@@ -127,6 +200,4 @@ int main()
     std::cout << "Ton symbole1 ? " << player1.symbol << std::endl;
     std::cout << "Ton symbole2 ? " << player2.symbol << std::endl;
     game(board, player1, player2);
-
-    return 0;
 }
