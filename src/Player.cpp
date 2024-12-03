@@ -14,7 +14,6 @@ namespace Player {
         std::cin >> input;
         if (input.size() > 1) std::cout << "Tu veux trop être différent, on va prendre ta première lettre alors." << std::endl;
         player.symbol = input[0]; // only take first char
-        std::cin.clear();
 
         return player;
 

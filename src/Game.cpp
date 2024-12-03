@@ -125,20 +125,29 @@ void draw_game_board(std::array<char, 10> &board)
 void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &player2)
 {
     bool isGameOver{false};
+    int round{1};
     int input{};
-    Player::Player plrToPlay = ((std::rand() % 2) == 0) ? player1 : player2;
+    Player::Player plrToPlay = player2;
 
     while (!isGameOver)
     {
+        std::cout << "Tour " << round << std::endl;
         std::cout << plrToPlay.name << ", c'est à toi de jouer !" << std::endl;
         draw_game_board(board);
 
         if (plrToPlay.name == "AI")
         {
+            std::array<int, 4> corners {1,3,7,9};
+            int randomCorners = std::rand() % 4;
+            if (round == 1) input = corners[randomCorners];
+            else if (round == 2 && board[5] == '.') input = 5;
+            else if (round == 2 && board[corners[randomCorners]] == '.') input = corners[randomCorners];
+            else {
             do
             {
                 input = (std::rand() % 9) + 1;
             } while (board[input] != '.');
+            }
         }
         else
         {
@@ -165,6 +174,7 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
         }
 
         board[input] = plrToPlay.symbol;
+        round++;
         isGameOver = is_game_over(board);
         (player1.name == plrToPlay.name) ? plrToPlay = player2 : plrToPlay = player1;
     }
