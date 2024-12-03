@@ -6,10 +6,15 @@ namespace Player {
     Player create_player()
     {
         Player player{};
-        std::cout << "C'est quoi ton nom min fieu ?" << std::endl;
+        std::string input;
+        std::cout << "C'est quoi ton prénom ?" << std::endl;
         std::cin >> player.name;
-        std::cout << "Tu veux quel symbole mon frère ?" << std::endl;
-        std::cin >> player.symbol;
+        std::cout << "Tu veux quel symbole ?" << std::endl;
+
+        std::cin >> input;
+        if (input.size() > 1) std::cout << "Tu veux trop être différent, on va prendre ta première lettre alors." << std::endl;
+        player.symbol = input[0]; // only take first char
+        std::cin.clear();
 
         return player;
 
