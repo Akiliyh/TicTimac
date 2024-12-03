@@ -1,7 +1,8 @@
 #include <iostream>
 #include <array>
-#include "Player.hpp"
-#include "Game.hpp"
+#include "player.hpp"
+#include "game.hpp"
+#include "ai.hpp"
 #include <cstdlib>
 #include <ctime>
 #include <limits>

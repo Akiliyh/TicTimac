@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Player.hpp"
+#include "player.hpp"
 
 namespace Player {
 

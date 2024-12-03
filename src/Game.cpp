@@ -1,6 +1,7 @@
 // #include <terminal_ctrl/terminal_ctrl.h>
 #include <iostream>
-#include "Game.hpp"
+#include "game.hpp"
+#include "ai.hpp"
 #include <array>
 #include <limits>
 #include <optional>
@@ -127,7 +128,7 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
     bool isGameOver{false};
     int round{1};
     int input{};
-    Player::Player plrToPlay = player2;
+    Player::Player plrToPlay = std::rand() % 2 ? player1 : player2;
 
     while (!isGameOver)
     {
@@ -137,17 +138,7 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         if (plrToPlay.name == "AI")
         {
-            std::array<int, 4> corners {1,3,7,9};
-            int randomCorners = std::rand() % 4;
-            if (round == 1) input = corners[randomCorners];
-            else if (round == 2 && board[5] == '.') input = 5;
-            else if (round == 2 && board[corners[randomCorners]] == '.') input = corners[randomCorners];
-            else {
-            do
-            {
-                input = (std::rand() % 9) + 1;
-            } while (board[input] != '.');
-            }
+            AI::plays(board, round, input);
         }
         else
         {
@@ -175,18 +166,51 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         board[input] = plrToPlay.symbol;
         round++;
-        isGameOver = is_game_over(board);
+        if (round > 5) isGameOver = is_game_over(board); // only check if it's over after fastest win possible i.e. in 5 moves.
         (player1.name == plrToPlay.name) ? plrToPlay = player2 : plrToPlay = player1;
     }
     std::cout << "La partie est terminée." << std::endl;
     draw_game_board(board);
-    check_winner(board, player1, player2).has_value() ? std::cout << "Le gagnant est " << check_winner(board, player1, player2).value().name << std::endl : std::cout << "La partie est nulle en sah." << std::endl;
+    if (check_winner(board, player1, player2).has_value())
+    {
+        std::cout << "Le gagnant est " << check_winner(board, player1, player2).value().name << std::endl;
+        player1.name == check_winner(board, player1, player2).value().name ? player1.wins++ : player2.wins++;
+        std::cout << "Le head to head est pour l'instant de " << std::endl;
+        std::cout << player1.name << " " << player1.wins << " / " << player2.name << " " << player2.wins << std::endl;
+    } else {
+        std::cout << "La partie est bien nulle." << std::endl;
+    }
+    
+    std::cout << "Voulez-vous recommencer ?" << std::endl;
+    std::cout << "1. Oui" << std::endl;
+    std::cout << "2. Non ton jeu est nul." << std::endl;
+    int replay_input{};
+    // prevent mistakes
+    while (true)
+    {
+        std::cin >> replay_input;
+        if (std::cin.fail() || replay_input > 2 || replay_input < 1)
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard
+            std::cout << "Hey c'est pas valide ! Donne soit 1 ou 2." << std::endl;
+            continue;
+        }
+        break;
+    }
+    if(replay_input == 1) replay_game(player1, player2);
+    else std::cout << "Bah super" << std::endl;
+}
+
+void replay_game(Player::Player &player1, Player::Player &player2)
+{
+    // restart the board
+    std::array<char, 10> board{};
+    game(board, player1, player2);
 }
 
 void game_init(std::array<char, 10> &board, int game_mode)
 {
-    // terminal_ctrl::clear_terminal();
-    // terminal_ctrl::move_cursor(1, 3);
     draw_example_board();
     Player::Player player1{};
     if (game_mode == 2)

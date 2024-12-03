@@ -7,6 +7,7 @@ namespace Player
     {
         std::string name;
         char symbol;
+        int wins;
     };
 
     Player create_player();
