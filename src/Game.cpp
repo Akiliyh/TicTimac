@@ -138,7 +138,7 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         if (plrToPlay.name == "AI")
         {
-            AI::plays(board, round, input);
+            AI::plays(board, round, input, player2.symbol);
         }
         else
         {

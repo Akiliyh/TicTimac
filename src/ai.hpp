@@ -3,6 +3,6 @@
 
 namespace AI {
 
-    void plays(std::array<char, 10> &board, int const &round, int &input);
+    void plays(std::array<char, 10> &board, int const &round, int &input, char const &playerSymbol);
 
 }
