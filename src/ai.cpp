@@ -13,9 +13,7 @@
 namespace AI
 {
 
-
-
-    int minimax(std::array<char, 10>& board, int depth, bool isMaximizing, Player::Player const &player, Player::Player const &ai)
+    int minimax(std::array<char, 10>& board, int depth, bool isMaximizing, Player::Player const &player, Player::Player const &ai, int alpha, int beta)
     {
         auto winner = Verif::check_winner(board, player, ai);
         if (winner.has_value())
@@ -26,7 +24,7 @@ namespace AI
 
         if (std::all_of(board.begin() + 1, board.end(), [](char c) { return c != '.'; }))
         {
-            return 0; // Represent a draw as a special "Draw" player
+            return 0;
         }
 
         if (depth == 0) return 0;
@@ -38,9 +36,15 @@ namespace AI
                 if (board[i] == '.')
                 {
                     board[i] = ai.symbol; // Simulate AI move
-                    int eval = minimax(board, depth - 1, false, player, ai);
+                    int eval = minimax(board, depth - 1, false, player, ai, alpha, beta);
                     board[i] = '.'; // Undo move
                     maxEval = std::max(maxEval, eval);
+                    if (maxEval > beta)
+                    {
+                        break;
+                    }
+                    alpha = std::max(alpha, maxEval);
+                    
                 }
             }
             return maxEval;
@@ -53,9 +57,14 @@ namespace AI
                 if (board[i] == '.')
                 {
                     board[i] = player.symbol; // Simulate Player move
-                    int eval = minimax(board, depth - 1, true, player, ai);
+                    int eval = minimax(board, depth - 1, true, player, ai, alpha, beta);
                     board[i] = '.'; // Undo move
                     minEval = std::min(minEval, eval);
+                    if (minEval < alpha)
+                    {
+                        break;
+                    }
+                    beta = std::min(beta, minEval);
                 }
             }
             return minEval;
@@ -66,7 +75,7 @@ namespace AI
     {
         std::array<int, 4> corners{1, 3, 7, 9};
         int randomCorners = std::rand() % 4;
-        std::cout << minimax(board, 10, true, player, ai) << std::endl;
+        std::cout << minimax(board, 10, true, player, ai, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()) << std::endl;
         if (round == 1)
             input = corners[randomCorners];
         else
@@ -78,8 +87,8 @@ namespace AI
             {
                 if (board[i] == '.')
                 {
-                    board[i] = 'X'; // Simulate AI move
-                    int moveValue = minimax(board, 10, false, player, ai); // Start Minimax
+                    board[i] = ai.symbol; // Simulate AI move
+                    int moveValue = minimax(board, 10, false, player, ai, std::numeric_limits<int>::min() , std::numeric_limits<int>::max()); // Start Minimax
                     board[i] = '.'; // Undo move
                     std::cout << moveValue << std::endl;
                     if (moveValue > bestValue)
