@@ -5,6 +5,7 @@
 #include <array>
 #include <limits>
 #include <optional>
+#include "verification.hpp"
 
 void draw_example_board()
 {
@@ -17,95 +18,6 @@ void draw_example_board()
         }
         std::cout << std::endl;
     }
-}
-
-std::optional<Player::Player> check_winner(std::array<char, 10> const &board, Player::Player const &player1, Player::Player const &player2)
-{
-    Player::Player winner{};
-    for (int j = 7; j > 0; j -= 3)
-    {
-        if (board[j] != '.' && board[j] == board[j + 1] && board[j] == board[j + 2])
-        {
-            board[j] == player1.symbol ? winner = player1 : winner = player2;
-            return winner;
-        }
-
-        for (size_t i = 0; i < board.size() / 3; i++)
-        {
-            if (board[i + 7] != '.' && board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
-            {
-                board[i + 7] == player1.symbol ? winner = player1 : winner = player2;
-                return winner;
-            }
-
-            // diagonals
-            if (board[7] != '.' && board[7] == board[5] && board[7] == board[3])
-            {
-                board[7] == player1.symbol ? winner = player1 : winner = player2;
-                return winner;
-            }
-            if (board[1] != '.' && board[1] == board[5] && board[1] == board[9])
-            {
-                board[1] == player1.symbol ? winner = player1 : winner = player2;
-                return winner;
-            }
-        }
-    }
-
-    // if no winner then it's a draw by definition
-    return std::nullopt;
-}
-
-// not optimized
-bool is_game_over(std::array<char, 10> const &board)
-{
-    bool gameOver{false};
-    for (int j = 7; j > 0; j -= 3)
-    {
-        if (board[j] == board[j + 1] && board[j] == board[j + 2])
-        {
-            if (board[j] != '.')
-                return gameOver = true;
-        }
-
-        for (size_t i = 0; i < board.size() / 3; i++)
-        {
-            if (board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
-            {
-                if (board[i + 7] != '.')
-                    return gameOver = true;
-            }
-
-            // diagonals
-            if (board[7] == board[5] && board[7] == board[3])
-            {
-                if (board[7] != '.')
-                    return gameOver = true;
-            }
-            if (board[1] == board[5] && board[1] == board[9])
-            {
-                if (board[1] != '.')
-                    return gameOver = true;
-            }
-        }
-    }
-
-    // if no winner are defined we check if it's a draw or not
-
-    bool allNonDot = true;
-    for (size_t i = 0; i < board.size(); i++)
-    {
-        if (board[i] == '.')
-        {
-            allNonDot = false;
-            break;
-        }
-    }
-
-    if (allNonDot)
-        return gameOver = true;
-
-    return gameOver;
 }
 
 void draw_game_board(std::array<char, 10> &board)
@@ -138,7 +50,7 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         if (plrToPlay.name == "AI")
         {
-            AI::plays(board, round, input, player2.symbol);
+            AI::plays(board, round, input, player1, player2);
         }
         else
         {
@@ -166,15 +78,26 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         board[input] = plrToPlay.symbol;
         round++;
-        if (round > 5) isGameOver = is_game_over(board); // only check if it's over after fastest win possible i.e. in 5 moves.
         (player1.name == plrToPlay.name) ? plrToPlay = player2 : plrToPlay = player1;
+        // if (round > 5) isGameOver = is_game_over(board); 
+        if (round > 5 ) // only check if it's over after fastest win possible i.e. in 5 moves.
+        {
+            std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2);
+            if (winner.has_value()) isGameOver = true;
+        }
+        if (round > 9) // automatically ends when draw i.e. when all spots are take 3*3=9
+        {
+            isGameOver = true;
+        }
+        
     }
     std::cout << "La partie est terminée." << std::endl;
     draw_game_board(board);
-    if (check_winner(board, player1, player2).has_value())
+    std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2);
+    if (winner.has_value())
     {
-        std::cout << "Le gagnant est " << check_winner(board, player1, player2).value().name << std::endl;
-        player1.name == check_winner(board, player1, player2).value().name ? player1.wins++ : player2.wins++;
+        std::cout << "Le gagnant est " << winner.value().name << std::endl;
+        player1.name == winner.value().name ? player1.wins++ : player2.wins++;
         std::cout << "Le head to head est pour l'instant de " << std::endl;
         std::cout << player1.name << " " << player1.wins << " / " << player2.name << " " << player2.wins << std::endl;
     } else {
