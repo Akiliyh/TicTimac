@@ -2,40 +2,38 @@
 #include <iostream>
 #include "game.hpp"
 #include "ai.hpp"
-#include <array>
+#include <vector>
 #include <limits>
 #include <optional>
 #include "verification.hpp"
 
-void draw_example_board()
+void draw_example_board(int grid_size)
 {
-    for (int j = 7; j > 0; j -= 3)
+    for (int j = grid_size * grid_size; j > 0; j -= grid_size)
     {
         std::cout << '|';
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < grid_size; i++)
         {
-            std::cout << j + i << '|';
+            std::cout << (j - grid_size + 1) + i << '|'; 
         }
         std::cout << std::endl;
     }
 }
 
-void draw_game_board(std::array<char, 10> &board)
+void draw_game_board(std::vector<char> &board, int grid_size)
 {
-    for (int j = 7; j > 0; j -= 3)
+    for (int j = grid_size * grid_size; j > 0; j -= grid_size)
     {
         std::cout << '|';
-        for (size_t i = 0; i < board.size() / 3; i++)
+        for (size_t i = 0; i < board.size() / grid_size; i++)
         {
-            if (board[i + j] == '\0') // replace the empty spaces with a dot
-                board[i + j] = '.';
-            std::cout << board[i + j] << '|';
+            std::cout << board[(j - grid_size + 1) + i] << '|';
         }
         std::cout << std::endl;
     }
 }
 
-void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &player2)
+void game(std::vector<char> &board, Player::Player &player1, Player::Player &player2, int grid_size)
 {
     bool isGameOver{false};
     int round{1};
@@ -46,11 +44,11 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
     {
         std::cout << "Tour " << round << std::endl;
         std::cout << plrToPlay.name << ", c'est à toi de jouer !" << std::endl;
-        draw_game_board(board);
+        draw_game_board(board, grid_size);
 
         if (plrToPlay.name == "AI")
         {
-            AI::plays(board, round, input, player1, player2);
+            AI::plays(board, round, input, player1, player2, grid_size);
         }
         else
         {
@@ -58,11 +56,11 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
             while (true)
             {
                 std::cin >> input;
-                if (std::cin.fail() || input < 1 || input > 9)
+                if (std::cin.fail() || input < 1 || input > grid_size*grid_size)
                 {
                     std::cin.clear();
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard
-                    std::cout << "Hey c'est pas valide ! Entre un chiffre entre 1 et 9." << std::endl;
+                    std::cout << "Hey c'est pas valide ! Entre un chiffre entre 1 et " << grid_size*grid_size << "." << std::endl;
                     continue;
                 }
 
@@ -78,22 +76,21 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
 
         board[input] = plrToPlay.symbol;
         round++;
-        (player1.name == plrToPlay.name) ? plrToPlay = player2 : plrToPlay = player1;
-        // if (round > 5) isGameOver = is_game_over(board); 
+        (player1.name == plrToPlay.name) ? plrToPlay = player2 : plrToPlay = player1; 
         if (round > 5 ) // only check if it's over after fastest win possible i.e. in 5 moves.
         {
-            std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2);
+            std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2, grid_size);
             if (winner.has_value()) isGameOver = true;
         }
-        if (round > 9) // automatically ends when draw i.e. when all spots are take 3*3=9
+        if (round > grid_size*grid_size) // automatically ends when draw i.e. when all spots are taken 3*3=9 or grid_size*grid_size
         {
             isGameOver = true;
         }
         
     }
     std::cout << "La partie est terminée." << std::endl;
-    draw_game_board(board);
-    std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2);
+    draw_game_board(board, grid_size);
+    std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2, grid_size);
     if (winner.has_value())
     {
         std::cout << "Le gagnant est " << winner.value().name << std::endl;
@@ -121,20 +118,20 @@ void game(std::array<char, 10> &board, Player::Player &player1, Player::Player &
         }
         break;
     }
-    if(replay_input == 1) replay_game(player1, player2);
+    if(replay_input == 1) replay_game(player1, player2, grid_size);
     else std::cout << "Bah super" << std::endl;
 }
 
-void replay_game(Player::Player &player1, Player::Player &player2)
+void replay_game(Player::Player &player1, Player::Player &player2, int grid_size)
 {
     // restart the board
-    std::array<char, 10> board{};
-    game(board, player1, player2);
+    std::vector<char> board((grid_size*grid_size+1), '.');
+    game(board, player1, player2, grid_size);
 }
 
-void game_init(std::array<char, 10> &board, int game_mode)
+void game_init(std::vector<char> &board, int game_mode, int grid_size)
 {
-    draw_example_board();
+    draw_example_board(grid_size);
     Player::Player player1{};
     if (game_mode == 2)
     {
@@ -156,5 +153,5 @@ void game_init(std::array<char, 10> &board, int game_mode)
     std::cout << "Ton nom joueur 2 c'est ? " << player2.name << std::endl;
     std::cout << "Ton symbole1 ? " << player1.symbol << std::endl;
     std::cout << "Ton symbole2 ? " << player2.symbol << std::endl;
-    game(board, player1, player2);
+    game(board, player1, player2, grid_size);
 }

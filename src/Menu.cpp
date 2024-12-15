@@ -1,5 +1,5 @@
 #include <iostream>
-#include <array>
+#include <vector>
 #include "player.hpp"
 #include "game.hpp"
 #include "ai.hpp"
@@ -12,7 +12,8 @@ int main()
 {
     std::srand(std::time(0));         // seed generator
     std::setlocale(LC_ALL, ".65001"); // deal with accents
-    std::array<char, 10> board{};
+    int grid_size {3};
+    std::vector<char> board((grid_size*grid_size+1), '.');
     int game_mode{};
     std::cout << "Bienvenue dans le jeu du TicTacToe" << std::endl;
     std::cout << "Veuillez choisir un mode de jeu :" << std::endl;
@@ -32,6 +33,6 @@ int main()
         break;
     }
 
-    game_init(board, game_mode);
+    game_init(board, game_mode, grid_size);
     return 0;
 }

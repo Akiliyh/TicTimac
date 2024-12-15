@@ -3,10 +3,10 @@
 namespace Verif
 {
 
-    std::optional<Player::Player> check_winner(std::array<char, 10> const &board, Player::Player const &player1, Player::Player const &player2)
+    std::optional<Player::Player> check_winner(std::vector<char> const &board, Player::Player const &player1, Player::Player const &player2, int grid_size)
     {
         Player::Player winner{};
-        for (int j = 7; j > 0; j -= 3)
+        for (int j = (grid_size*grid_size)-grid_size+1; j > 0; j -= grid_size)
         {
             if (board[j] != '.' && board[j] == board[j + 1] && board[j] == board[j + 2])
             {
@@ -14,7 +14,7 @@ namespace Verif
                 return winner;
             }
 
-            for (size_t i = 0; i < board.size() / 3; i++)
+            for (size_t i = 0; i < board.size() / grid_size; i++)
             {
                 if (board[i + 7] != '.' && board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
                 {
