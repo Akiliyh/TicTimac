@@ -8,27 +8,30 @@ namespace Verif
         Player::Player winner{};
         for (int j = (grid_size*grid_size)-grid_size+1; j > 0; j -= grid_size)
         {
+            // horizontal check
             if (board[j] != '.' && board[j] == board[j + 1] && board[j] == board[j + 2])
             {
                 board[j] == player1.symbol ? winner = player1 : winner = player2;
                 return winner;
             }
 
+            // vertical check
+
             for (size_t i = 0; i < board.size() / grid_size; i++)
             {
-                if (board[i + 7] != '.' && board[i + 7] == board[i + 7 - 3] && board[i + 7] == board[i + 7 - 6])
+                if (board[i + grid_size*2 +1] != '.' && board[i + grid_size*2 +1] == board[i + grid_size +1] && board[i + grid_size*2+1] == board[i+1])
                 {
-                    board[i + 7] == player1.symbol ? winner = player1 : winner = player2;
+                    board[i + grid_size*2 +1] == player1.symbol ? winner = player1 : winner = player2;
                     return winner;
                 }
 
                 // diagonals
-                if (board[7] != '.' && board[7] == board[5] && board[7] == board[3])
+                if (board[grid_size] != '.' && board[grid_size] == board[grid_size+grid_size-1] && board[grid_size] == board[(grid_size+grid_size-1)+grid_size-1])
                 {
-                    board[7] == player1.symbol ? winner = player1 : winner = player2;
+                    board[grid_size] == player1.symbol ? winner = player1 : winner = player2;
                     return winner;
                 }
-                if (board[1] != '.' && board[1] == board[5] && board[1] == board[9])
+                if (board[1] != '.' && board[1] == board[1+grid_size+1] && board[1] == board[(1+grid_size+1)+grid_size+1])
                 {
                     board[1] == player1.symbol ? winner = player1 : winner = player2;
                     return winner;
