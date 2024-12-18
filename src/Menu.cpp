@@ -7,6 +7,7 @@
 #include <ctime>
 #include <limits>
 #include "verification.hpp"
+#include "terminal_ctrl.hpp"
 
 int main()
 {
@@ -15,7 +16,22 @@ int main()
     int grid_size {3};
     std::vector<char> board((grid_size*grid_size+1), '.');
     int game_mode{};
-    std::cout << "Bienvenue dans le jeu du TicTacToe" << std::endl;
+    terminal_ctrl::clear_screen();
+    terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::BLACK); // and why not
+    terminal_ctrl::set_text_color(terminal_ctrl::ColorCode::WHITE);
+    terminal_ctrl::set_font_style(terminal_ctrl::FontStyle::BOLD);
+    std::cout << "Bienvenue dans le jeu du Morpiong" << std::endl;
+    
+    // flag
+    terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::BLUE);
+    std::cout << " ";
+    terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::WHITE);
+    std::cout << " ";
+    terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::RED);
+    std::cout << " " << std::endl; 
+
+    terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::BLACK);
+    std::cout << std::endl;
     std::cout << "Veuillez choisir un mode de jeu :" << std::endl;
     std::cout << "1. Deux joueurs" << std::endl;
     std::cout << "2. Un joueur contre l'IA" << std::endl;

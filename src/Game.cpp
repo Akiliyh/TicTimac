@@ -6,6 +6,7 @@
 #include <limits>
 #include <optional>
 #include "verification.hpp"
+#include "terminal_ctrl.hpp"
 
 void draw_example_board(int grid_size)
 {
@@ -41,7 +42,10 @@ void game(std::vector<char> &board, Player::Player &player1, Player::Player &pla
     Player::Player plrToPlay = std::rand() % 2 ? player1 : player2;
 
     while (!isGameOver)
-    {
+    {   
+        terminal_ctrl::clear_screen();
+        std::cout << "Pour rappel "<< std::endl;
+        draw_example_board(grid_size);
         std::cout << "Tour " << round << std::endl;
         std::cout << plrToPlay.name << ", c'est à toi de jouer !" << std::endl;
         draw_game_board(board, grid_size);
@@ -88,6 +92,7 @@ void game(std::vector<char> &board, Player::Player &player1, Player::Player &pla
         }
         
     }
+    terminal_ctrl::clear_screen();
     std::cout << "La partie est terminée." << std::endl;
     draw_game_board(board, grid_size);
     std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2, grid_size);
@@ -131,6 +136,7 @@ void replay_game(Player::Player &player1, Player::Player &player2, int grid_size
 
 void game_init(std::vector<char> &board, int game_mode, int grid_size)
 {
+    std::cout << "Pour jouer, regarde ton pavé numérique !" << std::endl;
     draw_example_board(grid_size);
     Player::Player player1{};
     if (game_mode == 2)
@@ -149,9 +155,9 @@ void game_init(std::vector<char> &board, int game_mode, int grid_size)
         player2 = Player::create_player();
     }
 
-    std::cout << "Ton nom joueur 1 c'est ? " << player1.name << std::endl;
-    std::cout << "Ton nom joueur 2 c'est ? " << player2.name << std::endl;
-    std::cout << "Ton symbole1 ? " << player1.symbol << std::endl;
-    std::cout << "Ton symbole2 ? " << player2.symbol << std::endl;
+    std::cout << "Le joueur 1 s'appelle  " << player1.name << std::endl;
+    std::cout << "Le joueur 2 s'appelle  " << player2.name << std::endl;
+    std::cout << "Le symbole de "<< player1.name << " est " << player1.symbol << std::endl;
+    std::cout << "Le symbole de "<< player2.name << " est " << player2.symbol << std::endl;
     game(board, player1, player2, grid_size);
 }
