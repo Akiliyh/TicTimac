@@ -17,7 +17,7 @@ namespace Verif
 
             // vertical check
 
-            for (size_t i = 0; i < board.size() / grid_size; i++)
+            for (int i = 0; i < grid_size; i++)
             {
                 if (board[i + grid_size*2 +1] != '.' && board[i + grid_size*2 +1] == board[i + grid_size +1] && board[i + grid_size*2+1] == board[i+1])
                 {
@@ -31,9 +31,9 @@ namespace Verif
                     board[grid_size] == player1.symbol ? winner = player1 : winner = player2;
                     return winner;
                 }
-                if (board[1] != '.' && board[1] == board[1+grid_size+1] && board[1] == board[(1+grid_size+1)+grid_size+1])
+                if (board[i] != '.' && board[i+j] == board[i+grid_size+1] && board[i] == board[(i+grid_size+1)+grid_size+1])
                 {
-                    board[1] == player1.symbol ? winner = player1 : winner = player2;
+                    board[i] == player1.symbol ? winner = player1 : winner = player2;
                     return winner;
                 }
             }
