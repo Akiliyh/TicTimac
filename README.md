@@ -37,7 +37,7 @@ L'indice `j` correspond à colonne et `i` à la ligne. `j` commence à 7 pour un
 
 Ici, apparaissent les mécaniques de jeu intéressantes. Le plateau est défini ici par un vector, car j'ai décidé d'implémenter la possibilité de changer la taille du plateau pour pimenter un peu plus la partie ! Sinon précédemment pour un morpion classique, j'utilisais un array d'une taille définie de 10 cases. Pour guider le joueur à chaque round nous affichons une grille template de quel nombre à entrer pour cocher une case, suivant le pavé numérique pour base. Tant que le fichier `verification.cpp` et sa fonction `check_winner()` ne renvoie pas de vainqueur alors le jeu continue en comptant les tours. Le joueur commençant est défini de manière aléatoire.
 
-> [!IMPORTANT]  
+> [!TIP]  
 > Vous vous demandez peut-être pourquoi j'ai utilisé un array de 10 cases pour un plateau de 3x3 ?... Car le pavé numérique commence à 1 et pourquoi s'embêter à retirer 1 à chaque input quand on peut stocker une valeur supplémentaire inutile. 
 > 
 # AI ⭕
@@ -64,4 +64,6 @@ En deuxième point, j'ai eu du mal à mettre en place le fait d'augmenter la tai
 
 Vous pouvez modifier la valeur de `grid_size` dans le `menu.cpp` pour pouvoir jouer sur un morpion plus grand, l'IA ne marche plus si l'on change de taille car la vérification de victoire à tendance à ne pas fonctionner dans ce cas précis. Le problème ici est que la vérification ne prend pas en compte les cases cochées en dehors du plateau d'origine 3x3, j'ai voulu régler ce problème mais à chaque fois que je résolvais le problème pour que cela fonctionne dans un plateau 5x5 le plateau d'origine ne fonctionnait plus. Il faudrait réecrire complétement le fichier `verification.cpp` pour une écrire plus intuitive et une compatibilité décuplée.
 
----
+> [!WARNING]  
+> TLDR
+> Les plateaux plus grands ne fonctionnent pas correctement (en partie) actuellement.
