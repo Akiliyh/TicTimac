@@ -21,14 +21,21 @@ void draw_example_board(int grid_size)
     }
 }
 
-void draw_game_board(std::vector<char> &board, int grid_size)
+void draw_game_board(std::vector<char> &board, int grid_size, Player::Player &player1, Player::Player &player2)
 {
     for (int j = grid_size * grid_size; j > 0; j -= grid_size)
     {
         std::cout << '|';
         for (size_t i = 0; i < board.size() / grid_size; i++)
         {
-            std::cout << board[(j - grid_size + 1) + i] << '|';
+            // apply colors for each player
+            if (board[(j - grid_size + 1) + i] == player1.symbol)
+            terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::BLUE);
+            if (board[(j - grid_size + 1) + i] == player2.symbol)
+            terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::RED);
+            std::cout << board[(j - grid_size + 1) + i];
+            terminal_ctrl::set_background_color(terminal_ctrl::ColorCode::BLACK);
+            std::cout << '|';
         }
         std::cout << std::endl;
     }
@@ -48,7 +55,7 @@ void game(std::vector<char> &board, Player::Player &player1, Player::Player &pla
         draw_example_board(grid_size);
         std::cout << "Tour " << round << std::endl;
         std::cout << plrToPlay.name << ", c'est à toi de jouer !" << std::endl;
-        draw_game_board(board, grid_size);
+        draw_game_board(board, grid_size, player1, player2);
 
         if (plrToPlay.name == "AI")
         {
@@ -94,7 +101,7 @@ void game(std::vector<char> &board, Player::Player &player1, Player::Player &pla
     }
     terminal_ctrl::clear_screen();
     std::cout << "La partie est terminée." << std::endl;
-    draw_game_board(board, grid_size);
+    draw_game_board(board, grid_size, player1, player2);
     std::optional<Player::Player> winner = Verif::check_winner(board, player1, player2, grid_size);
     if (winner.has_value())
     {
